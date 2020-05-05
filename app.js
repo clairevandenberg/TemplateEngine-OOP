@@ -4,6 +4,7 @@ const Intern = require("./lib/Intern");
 const inquirer = require("inquirer");
 const path = require("path");
 const fs = require("fs");
+const util = require("util");
 
 const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
@@ -12,55 +13,18 @@ const render = require("./lib/htmlRenderer");
 
 const writeFileAsync = util.promisify(fs.writeFile);
 
-
 // Write code to use inquirer to gather information about the development team members,
-// and to create objects for each team member (using the correct classes as blueprints!)
+
+//Calling Functions
+userQuestionsResponse ();
+createEngineer (); 
+createIntern (); 
+createManager ();
+
+const employees = []; // array to store user input data for each employee.
 
 //user questions to for HTML Page. 
-function userQuestionsResponse () {
-
-function createEmployee () {
-console.log("Begin building your team");
-return inquirer.prompt([
-    {
-        message: "What is your Employees name?",
-        type:"input",
-        name: "EmployeeName",
-        validate: answer => {
-            if(answer !== ""){
-                return true;
-            }
-            return "Please Enter Employee Full Name";
-        }
-    },
-
-    {
-        message: "What is your Employees ID?",
-        type:"input",
-        name: "EmployeeID",
-        validate: answer => {
-            if(answer !== ""){
-                return true;
-            }
-            return "Please Enter Employee ID";
-        }
-    },
-
-    {
-        message: "What is your Employees Email?",
-        type:"input",
-        name: "EmployeeEmail",
-        validate: answer => {
-            if(answer !== ""){
-                return true;
-            }
-            return "Please Enter Employee Email Adress";
-        }
-    }
-]);
-}
-
-function createManager() {
+async function createManager() {
     console.log("Begin building your team");
     return inquirer.prompt([
         {
@@ -109,12 +73,15 @@ function createManager() {
             }
                 return "Please Enter Managers Office Number";
         }
-    }
-]);
+    }, 
+// saving user input and pushing employees array to the new manager object.
+]).then(userInput => {
+    const manager = new Manager (userInput.ManagerName, userInput.ManagerID , userInput.ManagerEmail, userInput.ManagerOfficeNumber);
+    employees.push(manager);
+});
 }
-    
 
-function createEngineer () {
+async function createEngineer () {
     console.log("Begin building your team");
     return inquirer.prompt([
         {
@@ -164,10 +131,13 @@ function createEngineer () {
                 return "Please Enter Engineers GitHub";
         }
     },
-]);
+]).then(userInput => {
+    const engineer = new Engineer (userInput.EngineerName, userInput.EngineerID , userInput.EngineerEmail, userInput.EngineerGithubUsername);
+    employees.push(engineer);
+});
 }
 
-function createIntern () {
+async function createIntern () {
     console.log("Begin building your team");
     return inquirer.prompt([
         {
@@ -217,17 +187,28 @@ function createIntern () {
                 return "Please Enter Interns School";
         }
     }
-]);
+]).then(userInput => {
+    const intern = new Intern (userInput.InternName, userInput.InternID , userInput.InternEmail, userInput.InternSchool);
+    employees.push(intern);
+});
 }
 
 
-//userQuestionsResponse function end }.
-}
 
+// and to create objects for each team member (using the correct classes as blueprints!)
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
 // generate and return a block of HTML including templated divs for each employee!
+
+//generate HTML Page through rendering employees.
+const html = render(employees);
+fs.writeFile(outputPath, render(employees), (err) => {
+    if (err){
+        throw err;
+    }
+});
+
 
 
 
