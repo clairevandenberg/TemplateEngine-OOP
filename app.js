@@ -13,19 +13,45 @@ const render = require("./lib/htmlRenderer");
 
 const writeFileAsync = util.promisify(fs.writeFile);
 
-// Write code to use inquirer to gather information about the development team members,
-
-//Calling Functions
-createEngineer (); 
-createIntern (); 
-createManager ();
 
 const employees = []; // array to store user input data for each employee.
 
-//user questions to for HTML Page. 
-async function createManager() {
-    console.log("Begin building your team");
-    return inquirer.prompt([
+// Asking User which employee they want to list. 
+function employeeBuilder() {
+console.log("Begin building your team");
+return inquirer.prompt ([
+{
+    message: "What Employee Do You Want To Record?",
+    type: "list",
+    name: "employeetype",
+    choices: [
+        "Manager",
+        "Engineer",
+        "Intern"
+    ]
+}
+]);
+}
+
+// Asks User if they want to build more employees
+function addMoreEmployees () {
+    return inquirer.prompt ([
+        {
+        message: "Would you like to add another Employee?",
+        type: "list",
+        name: "addAnotherEmployee",
+        choices: [
+            "Yes",
+            "NO",
+        ]
+    }
+    ]);
+};
+
+
+// Manager User Questions. 
+function createManager() {
+    return inquirer.prompt ([
         {
         message: "What is your Managers name?",
         type:"input",
@@ -80,7 +106,8 @@ async function createManager() {
 });
 }
 
-async function createEngineer () {
+// Engineer User Questions. 
+function createEngineer () {
     console.log("Begin building your team");
     return inquirer.prompt([
         {
@@ -136,7 +163,8 @@ async function createEngineer () {
 });
 }
 
-async function createIntern () {
+// Intern User Questions. 
+function createIntern () {
     console.log("Begin building your team");
     return inquirer.prompt([
         {
@@ -193,10 +221,40 @@ async function createIntern () {
 }
 
 
+//creating Manager, Intern and Engineer  
+async function createEmployee () {
+    try { 
+    const addingEmployee = await employeeBuilder ()
+
+if (addingEmployee.employeetype === "Manager") {
+        const addingManager = await createManager ();
+        console.log("Manager has been added to employeee list");
+       
+} else if (addingEmployee.employeetype === "Engineer") {
+    const addingEngineer = await createEngineer ();
+        console.log("Engineer has been added to employeee list");
+        
+} else if (addingEmployee.employeetype === "Intern") {
+    const addingIntern= await createIntern ();
+        console.log("Intern has been added to employeee list");
+
+}  
+}
+catch (error) {
+    console.log(error)
+}
+};
+
+//calling function to create a new employee
+createEmployee ();
+
+
+
+
 //generate HTML Page through rendering employees.
-const html = render(employees);
-fs.writeFile(outputPath, render(employees), (err) => {
-    if (err){
-        throw err;
-    }
-});
+// const html = render(employees);
+// fs.writeFile(outputPath, render(employees), (err) => {
+//     if (err){
+//         throw err;
+//     }
+// });
